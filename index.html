@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo dos 7 Labirintos da Criação</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif;
+      background-color: #e0f7fa;
+      margin: 0;
+      padding: 10px;
+      text-align: center;
+      position: relative;
+      min-height: 100vh;
+      padding-bottom: 60px; /* Garante espaço para os créditos no rodapé */
+    }
+    h1 {
+      color: #0277bd;
+      font-size: 36px;
+      margin: 5px 0;
+    }
+    .subtitulo {
+      font-size: 28px;
+      color: #2e7d32;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    p.instrucao {
+      font-size: 24px;
+      font-weight: bold;
+      color: #37474f;
+      margin: 5px 0 15px 0;
+    }
+    
+    #game-container {
+      background-color: #ffffff;
+      max-width: 650px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 30px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+      border: 5px solid #81c784;
+    }
+
+    /* Tabuleiro do Labirinto */
+    #labirinto {
+      display: grid;
+      grid-template-columns: repeat(7, 70px);
+      grid-template-rows: repeat(7, 70px);
+      gap: 4px;
+      width: 514px;
+      height: 514px;
+      margin: 15px auto;
+      background-color: #37474f;
+      border: 6px solid #37474f;
+      border-radius: 18px;
+      justify-content: center;
+    }
+
+    .celula {
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 45px;
+      border-radius: 6px;
+    }
+    .parede {
+      background-color: #37474f;
+    }
+    .saida {
+      background-color: #fff9c4;
+      border: 3px dashed #fbc02d;
+      font-size: 18px;
+      font-weight: bold;
+      color: #d84315;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    /* Botões GIGANTES */
+    .controles {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .linha-controles {
+      display: flex;
+      gap: 25px;
+    }
+    .btn-seta {
+      width: 85px;
+      height: 85px;
+      font-size: 42px;
+      background-color: #4fc3f7;
+      color: white;
+      border: none;
+      border-radius: 22px;
+      cursor: pointer;
+      box-shadow: 0 6px #0288d1;
+    }
+    .btn-seta:active {
+      box-shadow: 0 2px #0288d1;
+      transform: translateY(4px);
+    }
+
+    /* Tela de Vitória */
+    #modal-fase {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #ffffff;
+      padding: 35px;
+      border-radius: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      border: 6px solid #4caf50;
+      z-index: 100;
+      width: 90%;
+      max-width: 450px;
+    }
+    #modal-fase h2 {
+      color: #2e7d32;
+      font-size: 36px;
+      margin: 0 0 15px 0;
+    }
+    #modal-fase p {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    #modal-fase button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 18px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    /* Créditos no Canto Inferior Esquerdo */
+    .creditos {
+      position: fixed;
+      bottom: 12px;
+      left: 15px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #0277bd;
+      background-color: rgba(255, 255, 255, 0.85);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid #b2ebf2;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 90;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧩 LABIRINTOS DA CRIAÇÃO 🧩</h1>
+  
+  <div id="game-container">
+    <div class="subtitulo" id="titulo-fase">FASE 1: DIA 1</div>
+    <p class="instrucao" id="instrucao-fase">Leve a LUZ até o 1º DIA!</p>
+
+    <div id="labirinto"></div>
+
+    <div class="controles">
+      <button class="btn-seta" onclick="mover(0, -1)">⬆️</button>
+      <div class="linha-controles">
+        <button class="btn-seta" onclick="mover(-1, 0)">⬅️</button>
+        <button class="btn-seta" onclick="mover(0, 1)">⬇️</button>
+        <button class="btn-seta" onclick="mover(1, 0)">➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-fase">
+    <h2 id="modal-titulo">MUITO BEM! 🎉</h2>
+    <p id="modal-texto">Você encontrou o dia certo!</p>
+    <button id="modal-btn" onclick="proximaFase()">PRÓXIMA FASE ➡️</button>
+  </div>
+
+  <!-- Texto de Créditos Fixado -->
+  <div class="creditos">
+    Jogo Criado por Prof. Rodrigo Olliver - EEB FRANCISCO MANFROI - SED 2026
+  </div>
+
+  <script>
+    var fases = [
+      { dia: "1º DIA", item: "💡", texto: "Leve a LUZ até o 1º DIA!", mapa: [
+        [0,0,1,0,0,0,0],
+        [1,0,1,0,1,1,0],
+        [0,0,0,0,0,1,0],
+        [0,1,1,1,0,1,0],
+        [0,0,0,1,0,0,0],
+        [1,1,0,1,1,1,0],
+        [0,0,0,0,0,0,2]
+      ]},
+      { dia: "2º DIA", item: "☁️", texto: "Leve o CÉU até o 2º DIA!", mapa: [
+        [0,1,0,0,0,1,0],
+        [0,1,0,1,0,1,0],
+        [0,0,0,1,0,0,0],
+        [1,1,0,1,1,1,0],
+        [0,0,0,0,0,1,0],
+        [0,1,1,1,0,0,0],
+        [0,0,0,1,0,1,2]
+      ]},
+      { dia: "3º DIA", item: "🌳", texto: "Leve as PLANTAS até o 3º DIA!", mapa: [
+        [0,0,0,1,0,0,0],
+        [1,1,0,1,0,1,0],
+        [0,0,0,0,0,1,0],
+        [0,1,1,1,1,1,0],
+        [0,1,0,0,0,0,0],
+        [0,1,0,1,1,1,1],
+        [0,0,0,0,0,0,2]
+      ]},
+      { dia: "4º DIA", item: "☀️", texto: "Leve o SOL até o 4º DIA!", mapa: [
+        [0,0,1,0,0,0,0],
+        [0,1,1,0,1,1,0],
+        [0,0,0,0,1,0,0],
+        [1,1,1,0,1,0,1],
+        [0,0,0,0,0,0,1],
+        [0,1,1,1,1,0,0],
+        [0,0,0,0,1,1,2]
+      ]},
+      { dia: "5º DIA", item: "🐟", texto: "Leve os PEIXES até o 5º DIA!", mapa: [
+        [0,1,0,0,0,0,0],
+        [0,1,0,1,1,1,0],
+        [0,0,0,1,0,0,0],
+        [1,1,0,1,0,1,1],
+        [0,0,0,0,0,1,0],
+        [0,1,1,1,0,1,0],
+        [0,0,0,1,0,0,2]
+      ]},
+      { dia: "6º DIA", item: "🦁", texto: "Leve os ANIMAIS até o 6º DIA!", mapa: [
+        [0,0,0,0,1,0,0],
+        [1,1,1,0,1,0,1],
+        [0,0,0,0,0,0,1],
+        [0,1,1,1,1,0,0],
+        [0,0,0,0,1,1,0],
+        [1,1,1,0,0,1,0],
+        [0,0,0,0,0,0,2]
+      ]},
+      { dia: "7º DIA", item: "😴", texto: "Leve ao DESCANSO no 7º DIA!", mapa: [
+        [0,1,0,0,0,1,0],
+        [0,1,0,1,0,1,0],
+        [0,0,0,1,0,0,0],
+        [0,1,1,1,1,1,0],
+        [0,0,0,0,0,1,0],
+        [1,1,1,1,0,1,0],
+        [0,0,0,0,0,0,2]
+      ]}
+    ];
+
+    var faseAtual = 0;
+    var posX = 0;
+    var posY = 0;
+
+    function renderizar() {
+      var container = document.getElementById('labirinto');
+      container.innerHTML = '';
+      var mapa = fases[faseAtual].mapa;
+
+      for (var y = 0; y < 7; y++) {
+        for (var x = 0; x < 7; x++) {
+          var div = document.createElement('div');
+          div.className = 'celula';
+
+          if (x === posX && y === posY) {
+            div.innerText = fases[faseAtual].item;
+            div.style.backgroundColor = '#e1f5fe';
+          } else if (mapa[y][x] === 1) {
+            div.className += ' parede';
+          } else if (mapa[y][x] === 2) {
+            div.className += ' saida';
+            div.innerText = fases[faseAtual].dia;
+          }
+
+          container.appendChild(div);
+        }
+      }
+    }
+
+    function carregarFase() {
+      document.getElementById('titulo-fase').innerText = "FASE " + (faseAtual + 1) + ": " + fases[faseAtual].dia;
+      document.getElementById('instrucao-fase').innerText = fases[faseAtual].texto;
+      posX = 0;
+      posY = 0;
+      renderizar();
+    }
+
+    function mover(dx, dy) {
+      var novoX = posX + dx;
+      var novoY = posY + dy;
+      var mapa = fases[faseAtual].mapa;
+
+      if (novoX >= 0 && novoX < 7 && novoY >= 0 && novoY < 7) {
+        if (mapa[novoY][novoX] !== 1) {
+          posX = novoX;
+          posY = novoY;
+          renderizar();
+
+          if (mapa[novoY][novoX] === 2) {
+            exibirVitoria();
+          }
+        }
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowUp') mover(0, -1);
+      if (e.key === 'ArrowDown') mover(0, 1);
+      if (e.key === 'ArrowLeft') mover(-1, 0);
+      if (e.key === 'ArrowRight') mover(1, 0);
+    });
+
+    function exibirVitoria() {
+      var modal = document.getElementById('modal-fase');
+      if (faseAtual < 6) {
+        document.getElementById('modal-titulo').innerText = "MUITO BEM! 🎉";
+        document.getElementById('modal-texto').innerText = "Você concluiu o " + fases[faseAtual].dia + "!";
+        document.getElementById('modal-btn').innerText = "PRÓXIMA FASE ➡️";
+      } else {
+        document.getElementById('modal-titulo').innerText = "PARABÉNS! 🏆";
+        document.getElementById('modal-texto').innerText = "Você completou todos os 7 labirintos!";
+        document.getElementById('modal-btn').innerText = "JOGAR NOVAMENTE 🔄";
+      }
+      modal.style.display = 'block';
+    }
+
+    function proximaFase() {
+      document.getElementById('modal-fase').style.display = 'none';
+      if (faseAtual < 6) {
+        faseAtual++;
+      } else {
+        faseAtual = 0;
+      }
+      carregarFase();
+    }
+
+    window.onload = function() {
+      carregarFase();
+    };
+  </script>
+</body>
+</html>
